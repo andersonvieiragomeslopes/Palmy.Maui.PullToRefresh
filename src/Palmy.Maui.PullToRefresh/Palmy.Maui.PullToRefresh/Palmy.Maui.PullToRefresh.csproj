@@ -8,6 +8,11 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
+        <PackageId>Palmy.Maui.PullToRefresh</PackageId>
+        <Authors>Andrii Kolodiichyk</Authors>
+        <Product>PullToRefresh for .net MAIU for iOS and Android</Product>
+        <PackageProjectUrl>https://github.com/kolodiichyk/Palmy.Maui.PullToRefresh</PackageProjectUrl>
+
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
     </PropertyGroup>
