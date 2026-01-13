@@ -21,7 +21,6 @@ internal class Normal(PullToRefreshView pullToRefreshView) : IPullToRefreshStrat
 		{
 			RowDefinitions =
 			{
-				new RowDefinition { Height = GridLength.Auto },
 				new RowDefinition { Height = GridLength.Star }
 			},
 			SafeAreaEdges = pullToRefreshView.SafeAreaEdges
@@ -36,7 +35,8 @@ internal class Normal(PullToRefreshView pullToRefreshView) : IPullToRefreshStrat
 		_refreshView = view;
 		if (_refreshView != null)
 		{
-			_refreshView.HeightRequest = 0;
+			_refreshView.VerticalOptions = LayoutOptions.Start;
+			_refreshView.TranslationY = -_refreshView.HeightRequest;
 			_containerGrid.Children.Add(_refreshView);
 			_refreshView.InvalidateMeasure();
 			Grid.SetRow(_refreshView, 0);
@@ -56,7 +56,7 @@ internal class Normal(PullToRefreshView pullToRefreshView) : IPullToRefreshStrat
 		pullToRefreshView.Content = _containerGrid;
 		_contentView = userContent;
 		_containerGrid.Children.Add(_contentView);
-		Grid.SetRow(_contentView, 1);
+		Grid.SetRow(_contentView, 0);
 	}
 
 	public void OnHandlerChanged(IViewHandler handler)
@@ -90,16 +90,16 @@ internal class Normal(PullToRefreshView pullToRefreshView) : IPullToRefreshStrat
 			return null;
 		}
 
-		var displacement = _refreshView.HeightRequest + y - _startY;
+		var displacement = _containerGrid.TranslationY + y - _startY;
 		// Non-linear spring behavior - gets harder to pull as you go further
 		var actualPullDistance = displacement / (1 + _springConstant * displacement / 100);
 		// Clamp to maximum pull distance
 		actualPullDistance = Math.Min(actualPullDistance, pullToRefreshView.MaxPullDistance);
-		var newHeight = Math.Max(0, actualPullDistance);
+		var newTranslationY = Math.Max(0, actualPullDistance);
 
-		_refreshView.HeightRequest = newHeight;
-		var state = newHeight < pullToRefreshView.RefreshHeight ?  PullToRefreshState.Pulling : PullToRefreshState.ReleaseToRefresh;
-		var percentage = newHeight / pullToRefreshView.RefreshHeight * 100;
+		_containerGrid.TranslationY = newTranslationY;
+		var state = newTranslationY < pullToRefreshView.RefreshHeight ?  PullToRefreshState.Pulling : PullToRefreshState.ReleaseToRefresh;
+		var percentage = newTranslationY / pullToRefreshView.RefreshHeight * 100;
 
 		return new PullResult(state, percentage);
 	}
@@ -115,8 +115,8 @@ internal class Normal(PullToRefreshView pullToRefreshView) : IPullToRefreshStrat
 		if (state == PullToRefreshState.ReleaseToRefresh)
 		{
 			state = PullToRefreshState.Refreshing;
-			var animation = new Animation(v => _refreshView.HeightRequest = v,
-				_refreshView.HeightRequest,
+			var animation = new Animation(v => _containerGrid.TranslationY = v,
+				_containerGrid.TranslationY,
 				pullToRefreshView.RefreshHeight);
 			animation.Commit(pullToRefreshView, "HeightAnimation", 16, 250, Easing.CubicInOut);
 			return new PullResult(state, 100);
@@ -136,8 +136,8 @@ internal class Normal(PullToRefreshView pullToRefreshView) : IPullToRefreshStrat
 
 		if (_refreshView != null)
 		{
-			var animation = new Animation(v => _refreshView.HeightRequest = v,
-				_refreshView.HeightRequest,
+			var animation = new Animation(v => _containerGrid.TranslationY = v,
+				_containerGrid.TranslationY,
 				0);
 			animation.Commit(pullToRefreshView, "HeightAnimation", 16, 250, Easing.CubicInOut, finished: (_, _) =>
 			{
