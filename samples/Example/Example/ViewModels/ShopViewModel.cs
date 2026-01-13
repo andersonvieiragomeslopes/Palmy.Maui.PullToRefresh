@@ -36,7 +36,14 @@ public class ShopViewModel : BaseViewModel
 
     public override void OnAppearing()
     {
-        Products = new ObservableCollection<ShopItem>(ShopItemGenerator.GenerateMultiple(25));
-        OnPropertyChanged(nameof(Products));
+        Task.Run(async () =>
+        {
+            if (Products.Any())
+                return;
+
+            Products = new ObservableCollection<ShopItem>(ShopItemGenerator.GenerateMultiple(25));
+            await Task.Delay(250);
+            OnPropertyChanged(nameof(Products));
+        });
     }
 }

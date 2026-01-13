@@ -124,7 +124,7 @@ internal class Overlay(PullToRefreshView pullToRefreshView) : IPullToRefreshStra
            var animation = new Animation(v => _refreshView.TranslationY = v,
                _refreshView.TranslationY,
                0);
-           animation.Commit(pullToRefreshView, "TranslationYAnimation", 16, 250, Easing.CubicInOut);
+           animation.Commit(pullToRefreshView, "TranslationYAnimation", 16, 250, pullToRefreshView.AnimationTransition);
            return new PullResult(state, 100);
         }
 
@@ -145,14 +145,8 @@ internal class Overlay(PullToRefreshView pullToRefreshView) : IPullToRefreshStra
             var animation = new Animation(v => _refreshView.TranslationY = v,
                 _refreshView.TranslationY,
                 -pullToRefreshView.RefreshHeight);
-            animation.Commit(pullToRefreshView, "TranslationYAnimation", 16, 250, Easing.CubicInOut, finished: (_, _) =>
-            {
-                if (_contentView is CollectionView collectionView)
-                {
-                    MainThread.BeginInvokeOnMainThread(() => collectionView.ScrollTo(0));
-                }
-            });
-            return new PullResult(PullToRefreshState.Canceled, 0);
+            animation.Commit(pullToRefreshView, "TranslationYAnimation", 16, 250, pullToRefreshView.AnimationTransition);
+            return new PullResult(state, 0);
         }
 
         return null;

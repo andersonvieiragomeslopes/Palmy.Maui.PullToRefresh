@@ -36,7 +36,14 @@ public class CarsViewModel : BaseViewModel
 
     public override void OnAppearing()
     {
-        Cars = new ObservableCollection<CarItem>(CarItemGenerator.GenerateMultiple(25));
-        OnPropertyChanged(nameof(Cars));
+        Task.Run(async () =>
+        {
+            if (Cars.Any())
+                return;
+
+            Cars = new ObservableCollection<CarItem>(CarItemGenerator.GenerateMultiple(25));
+            await Task.Delay(250);
+            OnPropertyChanged(nameof(Cars));
+        });
     }
 }

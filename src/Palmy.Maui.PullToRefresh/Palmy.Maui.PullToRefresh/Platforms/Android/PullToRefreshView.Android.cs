@@ -1,13 +1,18 @@
 using Android.Content;
 using Android.Views;
+using AndroidX.Core.Widget;
 using AndroidX.RecyclerView.Widget;
+using AndroidX.SwipeRefreshLayout.Widget;
 using Microsoft.Maui.Controls.Handlers.Items;
 using Palmy.Maui.PullToRefresh.Enums;
+using View = Android.Views.View;
 
 namespace Palmy.Maui.PullToRefresh;
 
 public partial class PullToRefreshView
 {
+	private ExtendedLinearLayoutManager _extendedLinearLayoutManager;
+
 	public void InitializeCollectionView(CollectionView collectionView)
 	{
 		var handler = collectionView.Handler as CollectionViewHandler;
@@ -16,24 +21,22 @@ public partial class PullToRefreshView
 			throw new NotSupportedException("Only CollectionView is supported");
 		}
 
-		recyclerView.SetLayoutManager(new ExtendedLinearLayoutManager(recyclerView.Context));
+		_extendedLinearLayoutManager = new ExtendedLinearLayoutManager(recyclerView.Context);
+		recyclerView.SetLayoutManager(_extendedLinearLayoutManager);
 		recyclerView.Invalidate();
 
 		var itemTouchListener = new OnItemTouchListener(this);
 		recyclerView.AddOnItemTouchListener(itemTouchListener);
-
-		recyclerView.ClearOnScrollListeners();
-		recyclerView.AddOnScrollListener(new ExtendedScrollListener(this));
 	}
 
 	public void SetContentScrollEnable(bool enable)
 	{
-
+		_extendedLinearLayoutManager.IsScrollVerticallyEnabled = enable;
 	}
 
 	public double GetContentScrollOffset(Microsoft.Maui.Controls.View view)
 	{
-		/*var scrollView = view.Handler?.PlatformView;
+		var scrollView = view.Handler?.PlatformView;
 		var childPanel = scrollView as ViewGroup;
 		if (childPanel is not null)
 		{
@@ -49,7 +52,7 @@ public partial class PullToRefreshView
 			{
 				return nativeCollectionView.ComputeVerticalScrollOffset();
 			}
-		}*/
+		}
 
 		return 0;
 	}
@@ -79,13 +82,6 @@ public class OnItemTouchListener(PullToRefreshView pullToRefreshView)
 
 		if (_pullToRefreshView == null)
 			return false;
-
-		var linearLayoutManager = recyclerView.GetLayoutManager();
-		if (linearLayoutManager is ExtendedLinearLayoutManager extendedLinearLayoutManager)
-		{
-			extendedLinearLayoutManager.IsScrollVerticallyEnabled = !(_pullToRefreshView.State == PullToRefreshState.Pulling ||
-			                                                          _pullToRefreshView.State == PullToRefreshState.ReleaseToRefresh);
-		}
 
 		return _pullToRefreshView.State == PullToRefreshState.Refreshing;
 	}
@@ -121,19 +117,4 @@ public class ExtendedLinearLayoutManager(Context? context) : LinearLayoutManager
 
 	public bool IsScrollVerticallyEnabled { get; set; }= true;
 	public override bool CanScrollVertically() => IsScrollVerticallyEnabled;
-}
-
-public class ExtendedScrollListener(PullToRefreshView pullToRefreshView) : RecyclerView.OnScrollListener
-{
-	private int _verticalOffset;
-
-	public override void OnScrolled(RecyclerView recyclerView, int dx, int dy)
-	{
-		_verticalOffset += dy;
-		if (_verticalOffset < 0)
-			_verticalOffset = 0;
-
-		//pullToRefreshView.IsScrolledOnTop = _verticalOffset == 0;
-		base.OnScrolled(recyclerView, dx, dy);
-	}
 }

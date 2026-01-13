@@ -22,11 +22,16 @@ public partial class ShopPage : BaseContentPage<ShopViewModel>
     {
         switch (e.State)
         {
+            case PullToRefreshState.Pulling:
+                RefreshViewArrowImage.IsVisible = true;
+                break;
             case PullToRefreshState.Refreshing:
                 RefreshViewArrowImage.IsVisible = false;
                 AnimationView.Play();
                 break;
             case PullToRefreshState.Finished:
+                AnimationView.Stop();
+                break;
             case PullToRefreshState.Canceled:
                 AnimationView.Stop();
                 RefreshViewArrowImage.IsVisible = true;

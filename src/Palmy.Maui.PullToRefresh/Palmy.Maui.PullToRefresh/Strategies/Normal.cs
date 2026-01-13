@@ -104,8 +104,8 @@ internal class Normal(PullToRefreshView pullToRefreshView) : IPullToRefreshStrat
 		if (pullToRefreshView.AutoResize &&
 		    _containerGrid.TranslationY > pullToRefreshView.RefreshHeight)
 		{
-			_refreshView.HeightRequest = Math.Ceiling(_containerGrid.TranslationY) + 1;
-			_refreshView.TranslationY = - Math.Ceiling(_containerGrid.TranslationY) - 1;
+			_refreshView.HeightRequest = Math.Ceiling(_containerGrid.TranslationY) + 2;
+			_refreshView.TranslationY = - Math.Ceiling(_containerGrid.TranslationY) - 2;
 		}
 
 		var state = newTranslationY < pullToRefreshView.RefreshHeight ?  PullToRefreshState.Pulling : PullToRefreshState.ReleaseToRefresh;
@@ -150,6 +150,8 @@ internal class Normal(PullToRefreshView pullToRefreshView) : IPullToRefreshStrat
 
 	public PullResult OnFinishedRefreshing(PullToRefreshState state)
 	{
+		_isPulling = false;
+
 		if (_refreshView == null)
 			return null;
 
@@ -163,10 +165,10 @@ internal class Normal(PullToRefreshView pullToRefreshView) : IPullToRefreshStrat
 		animation.Commit(pullToRefreshView, "OnFinishedRefreshingAnimation", 16, 250,
 			pullToRefreshView.AnimationTransition, finished: (_, _) =>
 			{
-				if (_contentView is CollectionView collectionView)
+				/*if (_contentView is CollectionView collectionView)
 				{
 					MainThread.BeginInvokeOnMainThread(() => collectionView.ScrollTo(0));
-				}
+				}*/
 
 				_refreshView.HeightRequest = pullToRefreshView.RefreshHeight;
 				_refreshView.TranslationY = -pullToRefreshView.RefreshHeight;
