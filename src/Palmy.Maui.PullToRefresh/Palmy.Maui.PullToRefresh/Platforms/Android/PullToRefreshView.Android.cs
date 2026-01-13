@@ -25,6 +25,34 @@ public partial class PullToRefreshView
 		recyclerView.ClearOnScrollListeners();
 		recyclerView.AddOnScrollListener(new ExtendedScrollListener(this));
 	}
+
+	public void SetContentScrollEnable(bool enable)
+	{
+
+	}
+
+	public double GetContentScrollOffset(Microsoft.Maui.Controls.View view)
+	{
+		/*var scrollView = view.Handler?.PlatformView;
+		var childPanel = scrollView as ViewGroup;
+		if (childPanel is not null)
+		{
+			if (scrollView is SwipeRefreshLayout swipeRefreshLayout)
+			{
+				return swipeRefreshLayout.ScrollY;
+			}
+			else if (scrollView is Android.Webkit.WebView || view is ScrollView || view is NestedScrollView)
+			{
+				return (scrollView is View childView) ? childView.ScrollY : 0;
+			}
+			else if (scrollView is RecyclerView nativeCollectionView)
+			{
+				return nativeCollectionView.ComputeVerticalScrollOffset();
+			}
+		}*/
+
+		return 0;
+	}
 }
 
 public class OnItemTouchListener(PullToRefreshView pullToRefreshView)
@@ -105,7 +133,7 @@ public class ExtendedScrollListener(PullToRefreshView pullToRefreshView) : Recyc
 		if (_verticalOffset < 0)
 			_verticalOffset = 0;
 
-		pullToRefreshView.IsScrolledOnTop = _verticalOffset == 0;
+		//pullToRefreshView.IsScrolledOnTop = _verticalOffset == 0;
 		base.OnScrolled(recyclerView, dx, dy);
 	}
 }

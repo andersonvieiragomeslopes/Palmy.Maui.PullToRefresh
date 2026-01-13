@@ -15,6 +15,8 @@ internal class Overlay(PullToRefreshView pullToRefreshView) : IPullToRefreshStra
     private bool _isPulling;
     private bool _wasScrolledOnTop = true;
 
+    internal bool IsScrolledOnTop { get; set; } = true;
+
     public void Initialize()
     {
         _containerGrid = new Grid
@@ -72,13 +74,13 @@ internal class Overlay(PullToRefreshView pullToRefreshView) : IPullToRefreshStra
 
     public void HandlePanStarted(double x, double y)
     {
-        _wasScrolledOnTop = pullToRefreshView.IsScrolledOnTop;
+        _wasScrolledOnTop = pullToRefreshView.GetContentScrollOffset(_contentView) == 0;
         _startY = y;
     }
 
     public PullResult HandlePanMovement(double x, double y)
     {
-        if (!_isPulling && y > _startY && _wasScrolledOnTop && pullToRefreshView.IsScrolledOnTop)
+        if (!_isPulling && y > _startY && _wasScrolledOnTop && pullToRefreshView.GetContentScrollOffset(_contentView) == 0)
         {
             _isPulling = true;
         }

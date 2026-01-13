@@ -74,16 +74,18 @@ internal class Normal(PullToRefreshView pullToRefreshView) : IPullToRefreshStrat
 
 	public void HandlePanStarted(double x, double y)
 	{
-		_wasScrolledOnTop = pullToRefreshView.IsScrolledOnTop;
+		_wasScrolledOnTop = pullToRefreshView.GetContentScrollOffset(_contentView) == 0;
 		_startY = y;
 	}
 
 	public PullResult HandlePanMovement(double x, double y)
 	{
-		if (!_isPulling && y > _startY && _wasScrolledOnTop && pullToRefreshView.IsScrolledOnTop)
+		if (!_isPulling && y > _startY && _wasScrolledOnTop && pullToRefreshView.GetContentScrollOffset(_contentView) == 0)
 		{
 			_isPulling = true;
 		}
+
+		Console.WriteLine($" --- pullToRefreshView.GetChildScrollOffset {pullToRefreshView.GetContentScrollOffset(_contentView)} ---");
 
 		if (!_isPulling || _refreshView == null)
 		{
@@ -148,30 +150,28 @@ internal class Normal(PullToRefreshView pullToRefreshView) : IPullToRefreshStrat
 
 	public PullResult OnFinishedRefreshing(PullToRefreshState state)
 	{
-		_isPulling = false;
+		if (_refreshView == null)
+			return null;
 
-		if (_refreshView != null)
-		{
-			var animation =new Animation(v => _containerGrid.TranslationY = v,
-				_containerGrid.TranslationY, 0);
-			animation.Add(0, 1, new Animation(v => _refreshView.TranslationY = v,
-				_refreshView.TranslationY, -pullToRefreshView.RefreshHeight-2));
-			animation.Add(0, 1, new Animation(v => _refreshView.HeightRequest = v,
-				_refreshView.HeightRequest, pullToRefreshView.RefreshHeight+2));
-
-			animation.Commit(pullToRefreshView, "OnFinishedRefreshingAnimation", 16, 250, pullToRefreshView.AnimationTransition, finished: (_, _) =>
+		var animation = new Animation(v => _containerGrid.TranslationY = v,
+			_containerGrid.TranslationY, 0);
+		animation.Add(0, 1, new Animation(v => _refreshView.TranslationY = v,
+			_refreshView.TranslationY, -pullToRefreshView.RefreshHeight - 2));
+		animation.Add(0, 1, new Animation(v => _refreshView.HeightRequest = v,
+			_refreshView.HeightRequest, pullToRefreshView.RefreshHeight + 2));
+		
+		animation.Commit(pullToRefreshView, "OnFinishedRefreshingAnimation", 16, 250,
+			pullToRefreshView.AnimationTransition, finished: (_, _) =>
 			{
 				if (_contentView is CollectionView collectionView)
 				{
-					MainThread.BeginInvokeOnMainThread(()=>collectionView.ScrollTo(0));
+					MainThread.BeginInvokeOnMainThread(() => collectionView.ScrollTo(0));
 				}
+
 				_refreshView.HeightRequest = pullToRefreshView.RefreshHeight;
 				_refreshView.TranslationY = -pullToRefreshView.RefreshHeight;
 			});
 
-			return new PullResult(PullToRefreshState.Canceled, 0);
-		}
-
-		return null;
+		return new PullResult(state, 0);
 	}
 }
