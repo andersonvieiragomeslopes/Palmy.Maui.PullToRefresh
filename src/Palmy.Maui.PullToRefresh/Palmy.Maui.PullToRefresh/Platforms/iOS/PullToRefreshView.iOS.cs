@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Foundation;
 using Microsoft.Maui.Controls.Handlers.Items2;
 using Palmy.Maui.PullToRefresh.Enums;
@@ -7,6 +8,8 @@ namespace Palmy.Maui.PullToRefresh;
 
 public partial class PullToRefreshView
 {
+	private UIScrollView? _scrollView;
+
 	public void InitializeCollectionView(CollectionView collectionView)
 	{
 		var handler = collectionView.Handler as CollectionViewHandler2;
@@ -16,13 +19,39 @@ public partial class PullToRefreshView
 		var touchInterceptor = new TouchInterceptorGestureRecognizer(this);
 		handler.PlatformView.AddGestureRecognizer(touchInterceptor);
 
-		collectionView.Scrolled -= CollectionViewOnScrolled;
-		collectionView.Scrolled += CollectionViewOnScrolled;
+		_scrollView = GetUIScrollView(collectionView);
 	}
 
-	private void CollectionViewOnScrolled(object? sender, ItemsViewScrolledEventArgs e)
+	public double GetContentScrollOffset(View view)
 	{
-		IsScrolledOnTop = e.VerticalOffset == 0;
+		return _scrollView?.ContentOffset.Y ?? 0;
+	}
+
+	public void SetContentScrollEnable(bool enable)
+	{
+		if (_scrollView != null)
+		{
+			_scrollView.ScrollEnabled = enable;
+		}
+	}
+
+	private UIScrollView? GetUIScrollView(View view)
+	{
+		var scrollView = view.Handler?.PlatformView;
+		if (scrollView is UIScrollView uIScroll)
+		{
+			return uIScroll;
+		}
+
+		if (scrollView is UIView scrollViewUIView && scrollViewUIView.ToString().Contains("UICollectionViewControllerWrapperView", StringComparison.Ordinal))
+		{
+			foreach (var subview in scrollViewUIView.Subviews.OfType<UIScrollView>())
+			{
+				return subview;
+			}
+		}
+
+		return null;
 	}
 }
 
@@ -47,6 +76,9 @@ public sealed class TouchInterceptorGestureRecognizer : UIGestureRecognizer
 			x = (float)location.X;
 			y = (float)location.Y;
 		}
+
+		Console.WriteLine($" --- OnTouches {gestureStatus} ---");
+
 		_pullToRefreshView?.OnInterceptPanUpdated(
 			new PanUpdatedEventArgs(gestureStatus, 1, x, y));
 	}
@@ -66,8 +98,8 @@ public sealed class TouchInterceptorGestureRecognizer : UIGestureRecognizer
 		if (_pullToRefreshView == null)
 			throw new NullReferenceException("PullToRefreshView can't be null.");
 
-		if (!(_pullToRefreshView.State == PullToRefreshState.Finished ||
-		                                    _pullToRefreshView.State == PullToRefreshState.Canceled))
+		if (_pullToRefreshView.State == PullToRefreshState.Finished ||
+		    _pullToRefreshView.State == PullToRefreshState.Canceled)
 		{
 			State = UIGestureRecognizerState.Began;
 		}
@@ -93,11 +125,7 @@ public sealed class TouchInterceptorGestureRecognizer : UIGestureRecognizer
 
 	public override bool CanPreventGestureRecognizer(UIGestureRecognizer preventedGestureRecognizer)
 	{
-		if (_pullToRefreshView == null)
-			return false;
-
-		return !(_pullToRefreshView.State == PullToRefreshState.Finished ||
-		         _pullToRefreshView.State == PullToRefreshState.Canceled); // Don't prevent other gestures
+		return false; // Don't prevent other gestures
 	}
 
 	public override bool CanBePreventedByGestureRecognizer(UIGestureRecognizer preventingGestureRecognizer)

@@ -9,9 +9,16 @@ namespace Palmy.Maui.PullToRefresh;
 public partial class PullToRefreshView : ContentView
 {
 	IPullToRefreshStrategy _strategy;
-	internal bool IsScrolledOnTop { get; set; } = true;
 
-	public PullToRefreshState State { get; private set; } = PullToRefreshState.Finished;
+	public PullToRefreshState State
+	{
+		get;
+		private set
+		{
+			field = value;
+			SetContentScrollEnable(field == PullToRefreshState.Canceled || field == PullToRefreshState.Finished);
+		}
+	} = PullToRefreshState.Finished;
 
 	public static readonly BindableProperty RefreshCommandProperty =
 		BindableProperty.Create(nameof(RefreshCommand), typeof(ICommand), typeof(PullToRefreshView));
@@ -159,6 +166,7 @@ public partial class PullToRefreshView : ContentView
 		{
 			case GestureStatus.Started:
 				_strategy.HandlePanStarted(e.TotalX, e.TotalY);
+				Console.WriteLine($"--- HandlePanStarted {e.TotalY}:{State} ---");
 				break;
 			case GestureStatus.Running:
 				var runningResult = _strategy.HandlePanMovement(e.TotalX, e.TotalY);
@@ -167,25 +175,25 @@ public partial class PullToRefreshView : ContentView
 					State = runningResult.State;
 					Pulling?.Invoke(this, new PullToRefreshEventArgs(runningResult.State, runningResult.Percentage));
 				}
-
+				Console.WriteLine($"--- HandlePanMovement {e.TotalY}:{State}  ---");
 				break;
 			case GestureStatus.Completed:
 			case GestureStatus.Canceled:
 				var finishedResult = _strategy.HandlePanFinished(e.TotalX, e.TotalY);
 				if (finishedResult != null)
 				{
-					State = finishedResult.State;
-					Pulling?.Invoke(this, new PullToRefreshEventArgs(finishedResult.State, finishedResult.Percentage));
-
-					if (State == PullToRefreshState.Refreshing)
+					if (finishedResult.State == PullToRefreshState.Refreshing)
 					{
+						State = finishedResult.State;
 						RefreshCommand?.Execute(null);
 					}
 
-					if (State == PullToRefreshState.Canceled)
+					if (finishedResult.State == PullToRefreshState.Canceled)
 					{
 						OnFinishedRefreshing(PullToRefreshState.Canceled);
 					}
+
+					Pulling?.Invoke(this, new PullToRefreshEventArgs(finishedResult.State, finishedResult.Percentage));
 				}
 				break;
 		}
@@ -197,7 +205,7 @@ public partial class PullToRefreshView : ContentView
 		_strategy.OnHandlerChanged(Handler);
 	}
 
-	void OnFinishedRefreshing(PullToRefreshState state)
+	private void OnFinishedRefreshing(PullToRefreshState state)
 	{
 		var result = _strategy.OnFinishedRefreshing(state);
 		if (result != null)

@@ -14,6 +14,7 @@
                        SafeAreaEdges="None">
     <pullToRefresh:PullToRefreshView Margin="0"
                                      Padding="0"
+                                     AnimationTransition="{x:Static Easing.CubicInOut}"
                                      HorizontalOptions="Fill"
                                      IsRefreshing="{Binding IsRefreshing}"
                                      MaxPullDistance="420"
