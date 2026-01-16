@@ -3,4 +3,5 @@ A highly customizable pull-to-refresh control for .NET MAUI that allows develope
 
 ![Demo Screen](https://github.com/kolodiichyk/Palmy.Maui.PullToRefresh/blob/main/assets/car_refresh.gif)
 ![Demo Screen](https://github.com/kolodiichyk/Palmy.Maui.PullToRefresh/blob/main/assets/shop_refresh.gif)
+![Demo Screen](https://github.com/kolodiichyk/Palmy.Maui.PullToRefresh/blob/main/assets/weather_refresh.gif)
 
