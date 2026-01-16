@@ -61,15 +61,8 @@ internal class Normal(PullToRefreshView pullToRefreshView) : IPullToRefreshStrat
 
 	public void OnHandlerChanged(IViewHandler handler)
 	{
-		if (handler != null && _contentView is CollectionView collectionView)
-		{
-			pullToRefreshView.InitializeCollectionView(collectionView);
-			collectionView.BindingContext = pullToRefreshView.BindingContext;
-		}
-		else
-		{
-			throw new NotSupportedException("Only CollectionView is supported");
-		}
+		pullToRefreshView.InitializeCollectionView(_contentView);
+		_contentView.BindingContext = pullToRefreshView.BindingContext;
 	}
 
 	public void HandlePanStarted(double x, double y)

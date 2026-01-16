@@ -83,4 +83,8 @@
                   ContentTemplate="{DataTemplate views:ShopPage}"
                   Route="ShopPage" />
 
+    <ShellContent Title="Weather"
+                  ContentTemplate="{DataTemplate views:WeatherPage}"
+                  Route="WeatherPage" />
+
 </Shell>

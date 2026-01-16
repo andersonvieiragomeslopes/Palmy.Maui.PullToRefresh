@@ -1,6 +1,4 @@
-using System.Diagnostics;
 using Foundation;
-using Microsoft.Maui.Controls.Handlers.Items2;
 using Palmy.Maui.PullToRefresh.Enums;
 using UIKit;
 
@@ -10,16 +8,16 @@ public partial class PullToRefreshView
 {
 	private UIScrollView? _scrollView;
 
-	public void InitializeCollectionView(CollectionView collectionView)
+	public void InitializeCollectionView(View view)
 	{
-		var handler = collectionView.Handler as CollectionViewHandler2;
-		if (handler == null)
-			throw new NotSupportedException("Only CollectionView is supported");
+		var platformView = view.Handler?.PlatformView as UIView;
+		if (platformView == null)
+			throw new NotSupportedException("Only UIView is supported");
 
 		var touchInterceptor = new TouchInterceptorGestureRecognizer(this);
-		handler.PlatformView.AddGestureRecognizer(touchInterceptor);
+		platformView.AddGestureRecognizer(touchInterceptor);
 
-		_scrollView = GetUIScrollView(collectionView);
+		_scrollView = GetUIScrollView(view);
 	}
 
 	public double GetContentScrollOffset(View view)
@@ -76,8 +74,6 @@ public sealed class TouchInterceptorGestureRecognizer : UIGestureRecognizer
 			x = (float)location.X;
 			y = (float)location.Y;
 		}
-
-		Console.WriteLine($" --- OnTouches {gestureStatus} ---");
 
 		_pullToRefreshView?.OnInterceptPanUpdated(
 			new PanUpdatedEventArgs(gestureStatus, 1, x, y));

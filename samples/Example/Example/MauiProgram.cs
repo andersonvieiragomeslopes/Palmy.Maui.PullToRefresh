@@ -22,7 +22,7 @@ public static class MauiProgram
             });
         builder.Services.AddTransient<CarsViewModel>();
         builder.Services.AddTransient<ShopViewModel>();
-
+        builder.Services.AddTransient<WeatherViewModel>();
 #if DEBUG
         builder.Logging.AddDebug();
 #endif

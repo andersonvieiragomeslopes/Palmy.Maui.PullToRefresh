@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<views:BaseContentPage x:Class="Example.Views.WeatherPage"
+                       xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                       xmlns:helpers="clr-namespace:Example.Helpers"
+                       xmlns:lottie="clr-namespace:MPowerKit.Lottie;assembly=MPowerKit.Lottie"
+                       xmlns:models="clr-namespace:Example.Models"
+                       xmlns:pullToRefresh="clr-namespace:Palmy.Maui.PullToRefresh;assembly=Palmy.Maui.PullToRefresh"
+                       xmlns:viewModels="clr-namespace:Example.ViewModels"
+                       xmlns:views="clr-namespace:Example.Views"
+                       helpers:ShellEx.NavBarBottomLineIsVisible="False"
+                       x:DataType="viewModels:WeatherViewModel"
+                       x:TypeArguments="viewModels:WeatherViewModel"
+                       BackgroundColor="White">
+    <views:BaseContentPage.Resources>
+        <helpers:CreWeatherTypeToDescriptionConverter x:Key="WeatherDescriptionConverter" />
+        <helpers:WeatherTypeToGlyphConverter x:Key="WeatherGlyphConverter" />
+    </views:BaseContentPage.Resources>
+
+    <pullToRefresh:PullToRefreshView x:Name="PullToRefresh"
+                                     AutoResize="True"
+                                     IsRefreshing="{Binding IsRefreshing}"
+                                     RefreshCommand="{Binding RefreshCommand}"
+                                     RefreshHeight="80"
+                                     Type="Normal">
+        <pullToRefresh:PullToRefreshView.RefreshView>
+            <Border BackgroundColor="{StaticResource Tertiary}"
+                    HeightRequest="80"
+                    StrokeThickness="0">
+                <lottie:LottieView x:Name="AnimationView"
+                                   Margin="0,0,0,0"
+                                   AutoPlay="True"
+                                   HardwareAcceleration="True"
+                                   HeightRequest="40"
+                                   HorizontalOptions="Center"
+                                   RepeatMode="Infinite"
+                                   Source="spinner.json"
+                                   VerticalOptions="Center"
+                                   WidthRequest="40" />
+            </Border>
+        </pullToRefresh:PullToRefreshView.RefreshView>
+
+        <ScrollView>
+            <Grid Padding="20,40" RowDefinitions="Auto, *, Auto">
+                <Grid Grid.Row="0"
+                      HorizontalOptions="Center"
+                      RowDefinitions="Auto,Auto,Auto"
+                      VerticalOptions="Center">
+                    <Label Grid.Row="1"
+                           FontFamily="OpenSansSemibold"
+                           FontSize="20"
+                           HorizontalOptions="Center"
+                           Text="Kyiv, Ukraine" />
+                    <Label Grid.Row="2"
+                           FontFamily="OpenSansRegular"
+                           FontSize="16"
+                           HorizontalOptions="Center"
+                           Text="{Binding CurrentWeather.Date, StringFormat='{0:dddd, MMMM dd}'}"
+                           TextColor="{StaticResource Gray600}" />
+                </Grid>
+
+                <Grid Grid.Row="1"
+                      ColumnDefinitions="Auto, Auto"
+                      ColumnSpacing="5"
+                      HorizontalOptions="Center"
+                      RowDefinitions="Auto,Auto,Auto,Auto,Auto"
+                      VerticalOptions="Center">
+                    <Image Grid.Row="0"
+                           Grid.Column="0"
+                           Grid.ColumnSpan="2"
+                           HeightRequest="80"
+                           WidthRequest="80">
+                        <Image.Source>
+                            <FontImageSource FontFamily="FontAwesomeSolid"
+                                             Glyph="{Binding CurrentWeather.Type, Converter={StaticResource WeatherGlyphConverter}}"
+                                             Size="40"
+                                             Color="{StaticResource Gray300}" />
+                        </Image.Source>
+                    </Image>
+                    <Label Grid.Row="1"
+                           Grid.Column="0"
+                           Grid.ColumnSpan="2"
+                           FontFamily="OpenSansSemibold"
+                           FontSize="90"
+                           HorizontalOptions="Center"
+                           Text="{Binding CurrentWeather.CurrentTemperature, StringFormat='{0}°'}" />
+                    <Label Grid.Row="2"
+                           Grid.Column="0"
+                           Grid.ColumnSpan="2"
+                           FontFamily="OpenSansRegular"
+                           FontSize="20"
+                           HorizontalOptions="Center"
+                           Text="{Binding CurrentWeather.Type, Converter={StaticResource WeatherDescriptionConverter}}"
+                           TextColor="{StaticResource Gray600}" />
+                    <Label Grid.Row="3"
+                           Grid.Column="0"
+                           Grid.ColumnSpan="2"
+                           Padding="0,10,0,0"
+                           FontFamily="OpenSansRegular"
+                           FontSize="16"
+                           HorizontalOptions="Center"
+                           Text="Wind" />
+                    <Image Grid.Row="4"
+                           Grid.Column="0"
+                           HeightRequest="20"
+                           HorizontalOptions="End">
+                        <Image.Source>
+                            <FontImageSource FontFamily="FontAwesomeSolid"
+                                             Glyph="wind"
+                                             Size="16"
+                                             Color="{StaticResource Tertiary}" />
+                        </Image.Source>
+                    </Image>
+                    <Label Grid.Row="4"
+                           Grid.Column="1"
+                           Grid.ColumnSpan="2"
+                           FontFamily="OpenSansRegular"
+                           FontSize="14"
+                           HorizontalOptions="Start"
+                           Text="{Binding CurrentWeather.Wind, StringFormat='{0} m/s'}" />
+                </Grid>
+
+                <StackLayout Grid.Row="2"
+                             Margin="10,10,10,0"
+                             BindableLayout.ItemsSource="{Binding WeatherItems}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:Weather">
+                            <Grid Margin="0" ColumnDefinitions="100, *, 100">
+                                <Label Grid.Column="0"
+                                       Padding="0,10,0,0"
+                                       FontFamily="OpenSansRegular"
+                                       FontSize="16"
+                                       HorizontalOptions="Center"
+                                       Text="{Binding Date, StringFormat='{0:ddd, MMM dd}'}" />
+
+                                <Image Grid.Column="1"
+                                       HeightRequest="20"
+                                       HorizontalOptions="Center">
+                                    <Image.Source>
+                                        <FontImageSource FontFamily="FontAwesomeSolid"
+                                                         Glyph="{Binding Type, Converter={StaticResource WeatherGlyphConverter}}"
+                                                         Size="16"
+                                                         Color="{StaticResource Gray300}" />
+                                    </Image.Source>
+                                </Image>
+
+                                <Label Grid.Column="2"
+                                       Padding="0,10,0,0"
+                                       FontFamily="OpenSansRegular"
+                                       FontSize="16"
+                                       HorizontalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="{Binding MinTemperature, StringFormat='{0}° '}" />
+                                            <Span Text="{Binding MaxTemperature, StringFormat='{0}°'}" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                            </Grid>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </StackLayout>
+            </Grid>
+        </ScrollView>
+    </pullToRefresh:PullToRefreshView>
+</views:BaseContentPage>

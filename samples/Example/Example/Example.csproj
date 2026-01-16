@@ -9,6 +9,7 @@
         <SingleProject>true</SingleProject>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <EnableDefaultXamlItems>true</EnableDefaultXamlItems>
 
         <!-- Display name -->
         <ApplicationTitle>Example</ApplicationTitle>

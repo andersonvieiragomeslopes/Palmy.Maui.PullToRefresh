@@ -1,4 +1,6 @@
-﻿namespace Example;
+﻿using Example.Views;
+
+namespace Example;
 
 public partial class AppShell : Shell
 {

@@ -166,7 +166,6 @@ public partial class PullToRefreshView : ContentView
 		{
 			case GestureStatus.Started:
 				_strategy.HandlePanStarted(e.TotalX, e.TotalY);
-				Console.WriteLine($"--- HandlePanStarted {e.TotalY}:{State} ---");
 				break;
 			case GestureStatus.Running:
 				var runningResult = _strategy.HandlePanMovement(e.TotalX, e.TotalY);
@@ -175,7 +174,7 @@ public partial class PullToRefreshView : ContentView
 					State = runningResult.State;
 					Pulling?.Invoke(this, new PullToRefreshEventArgs(runningResult.State, runningResult.Percentage));
 				}
-				Console.WriteLine($"--- HandlePanMovement {e.TotalY}:{State}  ---");
+
 				break;
 			case GestureStatus.Completed:
 			case GestureStatus.Canceled:
@@ -195,6 +194,7 @@ public partial class PullToRefreshView : ContentView
 
 					Pulling?.Invoke(this, new PullToRefreshEventArgs(finishedResult.State, finishedResult.Percentage));
 				}
+
 				break;
 		}
 	}
